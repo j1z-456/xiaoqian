@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小芊同学</title>
+
+<style>
+/* ======== 星空渐变背景 ======== */
+html, body{
+    margin:0;
+    padding:0;
+    height:100%;
+    width:100%;
+    overflow:hidden;
+    background:radial-gradient(circle at 25% 25%, #181840 0%, #000010 100%);
+    font-family:"Microsoft YaHei", sans-serif;
+}
+
+/* ======== 流星雨样式（来自你的第二段代码） ======== */
+.rain{
+    position:absolute;
+    animation:make-it-rain linear infinite;
+    z-index:1;
+}
+@keyframes make-it-rain{
+    from{ top:-10% }
+    to{ top:110% }
+}
+
+/* ======== 弹窗雨样式（保持你的原样） ======== */
+#popup-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.popup {
+    position: absolute;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    cursor: pointer;
+    z-index: 10;
+    backdrop-filter: blur(10px);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    padding: 15px;
+    box-sizing: border-box;
+}
+
+.popup:hover {
+    transform: scale(1.05);
+    z-index: 11;
+}
+
+.close-btn {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    font-size: 20px;
+    color: #666;
+    cursor: pointer;
+    background: rgba(255,255,255,0.5);
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.message {
+    z-index: 2;
+    position: relative;
+}
+#start-screen{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.55);
+    backdrop-filter:blur(8px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:5000;
+}
+
+#start-box{
+    background:linear-gradient(135deg, #ffffffaa, #ffe6f9aa);
+    padding:35px 50px;
+    border-radius:20px;
+    text-align:center;
+    color:#333;
+    box-shadow:0 0 30px rgba(255,170,255,0.5);
+    animation:fadeIn 0.8s ease;
+}
+
+#start-box h2{
+    margin:0 0 10px;
+    font-size:26px;
+    color:#ff77c4;
+    text-shadow:0 0 8px rgba(255,120,200,0.6);
+}
+
+#start-box p{
+    font-size:16px;
+    opacity:0.8;
+    margin-bottom:20px;
+}
+
+#start-btn{
+    padding:10px 35px;
+    border:none;
+    border-radius:25px;
+    background:linear-gradient(135deg, #ff7de8, #c47dff);
+    font-size:18px;
+    color:white;
+    cursor:pointer;
+    box-shadow:0 0 15px rgba(255,130,230,0.6);
+    transition:0.3s;
+}
+
+#start-btn:hover{
+    transform:scale(1.08);
+    box-shadow:0 0 25px rgba(255,150,240,0.8);
+}
+
+@keyframes fadeIn{
+    from{ opacity:0; transform:scale(0.8); }
+    to{ opacity:1; transform:scale(1); }
+}
+
+</style>
+</head>
+
+<body>
+<div id="popup-container"></div>
+<audio id="bgm" src="https://java-ai-mqh.oss-cn-beijing.aliyuncs.com/%E5%B1%8F%E5%B9%95%E5%BD%95%E5%88%B6%202025-11-24%20201457.mp3" autoplay loop></audio>
+<div id="start-screen">
+    <div id="start-box">
+        <h2>✨ 温柔世界正在加载 ✨</h2>
+        <p>点击开启浪漫</p>
+        <button id="start-btn">进入</button>
+    </div>
+</div>
+
+<audio id="bgm" 
+       src="https://java-ai-mqh.oss-cn-beijing.aliyuncs.com/%E5%B1%8F%E5%B9%95%E5%BD%95%E5%88%B6%202025-11-24%20201457.mp3"
+       loop></audio>
+
+<script>
+    // 点击启动按钮 → 播放音乐 + 隐藏启动弹窗 + 开始动画
+document.getElementById("start-btn").addEventListener("click", () => {
+    const bgm = document.getElementById("bgm");
+
+    // 播放音乐（解除自动播放限制）
+    bgm.play().catch(()=>{});
+
+    // 隐藏启动弹窗
+    document.getElementById("start-screen").style.opacity = "0";
+    setTimeout(() => {
+        document.getElementById("start-screen").remove();
+    }, 500);
+
+    // 启动你的内容：弹窗雨 + 流星雨
+    createRainEffect();
+    startPopupRain();
+
+    setTimeout(stopPopupRain, 15000);
+});
+
+    // 自动播放音频（兼容移动端）
+document.addEventListener("click", function () {
+    const bgm = document.getElementById("bgm");
+    if (bgm) {
+        bgm.play().catch(()=>{});
+    }
+}, { once: true });
+
+/* ====================================================
+      1. 复制你的“流星雨背景生成函数”
+   ==================================================== */
+function createRainEffect() {
+  const primaryColor = { r: 131, g: 33, b: 255, a: 0.7 };
+  function getRandomInt(min,max){return Math.floor(Math.random()*(max-min+1))+min}
+  function lightenColor(c,p){
+    const f = 1 + p/100;
+    return {
+      r:Math.min(255,Math.floor(c.r*f)),
+      g:Math.min(255,Math.floor(c.g*f)),
+      b:Math.min(255,Math.floor(c.b*f)),
+      a:c.a
+    };
+  }
+
+  const num = 160;
+  for(let i=0;i<num;i++){
+    const d = document.createElement('div');
+    d.className = 'rain';
+
+    const lightened = lightenColor(primaryColor, getRandomInt(1,18));
+    d.style.backgroundColor = `rgba(${lightened.r},${lightened.g},${lightened.b},${lightened.a})`;
+
+    const w = getRandomInt(1,2);
+    const h = getRandomInt(3,14);
+    d.style.width = `${w}px`;
+    d.style.height = `${h}px`;
+
+    d.style.left = `${getRandomInt(0,99)}%`;
+    d.style.top = `${getRandomInt(-20,100)}%`;
+
+    d.style.animationDuration = `${getRandomInt(3500,8000)}ms`;
+    d.style.animationDelay = `-${getRandomInt(0,4000)}ms`;
+
+    document.body.appendChild(d);
+  }
+}
+
+/* ====================================================
+      2. 你的原“弹窗雨”代码（未改动）
+   ==================================================== */
+const tips = [
+    '你是最最最棒的小乖ദ്ദി˶ｰ̀֊ｰ́ )✧',
+    '最最最最喜欢你 ˃̶͈ ꇴ ˂̶͈',
+    '天冷了，多穿衣服',
+    '我想你了',
+    '期待见面',
+    '天天开心',
+    '多喝水哦~',
+    '别熬夜(∗ᵒ̶̶̷̀ω˂̶́∗)੭₎₎̊₊♡',
+    '早点休息',
+    '好好爱自己',
+    '且听风吟，静等花开',
+    '今天过得开心嘛',
+    '斯人若彩虹，遇上方知有~'
+];
+
+const bgColors = [
+    'lightpink', 'skyblue', 'lightgreen', 'lavender',
+    'lightyellow', 'plum', 'coral', 'bisque',
+    'aquamarine', 'mistyrose', 'honeydew',
+    'lavenderblush', 'oldlace'
+];
+
+function createPopup() {
+    const popup = document.createElement('div');
+    popup.className = 'popup';
+
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+
+    const width = Math.floor(Math.random() * 90) + 160;
+    const height = Math.floor(Math.random() * 20) + 50;
+
+    const x = Math.random() * (screenWidth - width);
+    const y = Math.random() * (screenHeight - height);
+
+    popup.style.width = width + 'px';
+    popup.style.height = height + 'px';
+    popup.style.left = x + 'px';
+    popup.style.top = y + 'px';
+    popup.style.backgroundColor = bgColors[Math.floor(Math.random() * bgColors.length)];
+    popup.style.fontSize = (Math.floor(Math.random() * 4) + 12) + 'px';
+
+    popup.innerHTML = `
+        <div class="close-btn">×</div>
+        <div class="message">${tips[Math.floor(Math.random() * tips.length)]}</div>
+    `;
+
+    document.getElementById('popup-container').appendChild(popup);
+
+    setTimeout(() => {
+        popup.style.opacity = '0';
+        popup.style.transform = 'scale(0.8)';
+        setTimeout(() => popup.remove(), 300);
+    }, 10000);
+
+    popup.querySelector('.close-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        popup.style.opacity = '0';
+        popup.style.transform = 'scale(0.8)';
+        setTimeout(() => popup.remove(), 300);
+    });
+
+    popup.addEventListener('click', () => {
+        popup.style.opacity = '0';
+        popup.style.transform = 'scale(0.8)';
+        setTimeout(() => popup.remove(), 300);
+    });
+}
+
+let popupTimer;
+
+function startPopupRain() {
+    popupTimer = setInterval(createPopup, 150);
+}
+
+function stopPopupRain() {
+    clearInterval(popupTimer);
+
+    const popups = document.querySelectorAll('.popup');
+    popups.forEach(p => {
+        p.style.opacity = '0';
+        p.style.transform = 'scale(0.8)';
+        setTimeout(() => p.remove(), 300);
+    });
+
+    showFinalHint();
+}
+
+function showFinalHint() {
+    const hint = document.createElement('div');
+    hint.innerHTML = `
+        <div class="hint-title">斯人若彩虹</div>
+        <div class="hint-sub">遇上方知有</div>
+    `;
+
+    hint.style.cssText = `
+        position: fixed;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        padding: 40px 55px;
+        border-radius: 22px;
+        text-align: center;
+        z-index: 2000;
+
+        /* 背景：柔光星云玻璃 */
+        background: linear-gradient(135deg, rgba(255,180,250,0.18), rgba(150,200,255,0.18));
+        backdrop-filter: blur(25px);
+
+        /* 外发光：梦幻霓虹柔光 */
+        box-shadow:
+            0 0 20px rgba(255,150,255,0.4),
+            0 0 45px rgba(140,200,255,0.35),
+            0 0 70px rgba(255,255,255,0.25);
+
+        opacity: 0;
+        scale: 0.75;
+        transition:
+            opacity .9s ease,
+            scale .9s cubic-bezier(.23,1.45,.32,1);
+    `;
+
+    // ✨ 高级文字样式（避免 inline 覆盖 transform）
+    const style = document.createElement("style");
+    style.textContent = `
+        .hint-title {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            letter-spacing: 3px;
+            background: linear-gradient(90deg, #ffb7e6 0%, #9fc9ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 6px rgba(255,200,255,0.35));
+        }
+        .hint-sub {
+            font-size: 20px;
+            opacity: .9;
+            color: rgba(255,255,255,0.95);
+            text-shadow: 0 0 8px rgba(255,255,255,0.35);
+        }
+    `;
+    document.head.appendChild(style);
+
+    document.body.appendChild(hint);
+
+    // 出场
+    setTimeout(() => {
+        hint.style.opacity = "1";
+        hint.style.scale = "1";
+    }, 30);
+
+    // 退场
+    setTimeout(() => {
+        hint.style.opacity = "0";
+        hint.style.scale = "0.75";
+        setTimeout(() => hint.remove(), 700);
+    }, 60000);
+}
+
+
+/* ====================================================
+      3. 页面加载：开启流星雨 + 弹窗雨
+   ==================================================== */
+window.addEventListener('load', () => {
+    createRainEffect();  // ⭐ 加载流星雨背景
+
+
+    setTimeout(stopPopupRain, 15000);
+});
+</script>
+
+</body>
+</html>
