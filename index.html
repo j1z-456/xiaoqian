@@ -50,6 +50,7 @@ html, body{
     transition: transform 0.3s ease, opacity 0.3s ease;
     padding: 15px;
     box-sizing: border-box;
+    flex-direction: column;
 }
 
 .popup:hover {
@@ -76,7 +77,19 @@ html, body{
 .message {
     z-index: 2;
     position: relative;
+    margin-top: 10px;
 }
+
+.to-label {
+    position: absolute;
+    top: 8px;
+    left: 12px;
+    font-size: 12px;
+    color: #ff4081;
+    font-weight: bold;
+    text-shadow: 0 0 3px rgba(255, 255, 255, 0.5);
+}
+
 #start-screen{
     position:fixed;
     inset:0;
@@ -181,7 +194,7 @@ document.addEventListener("click", function () {
 }, { once: true });
 
 /* ====================================================
-      1. 复制你的“流星雨背景生成函数”
+      1. 复制你的"流星雨背景生成函数"
    ==================================================== */
 function createRainEffect() {
   const primaryColor = { r: 131, g: 33, b: 255, a: 0.7 };
@@ -220,7 +233,7 @@ function createRainEffect() {
 }
 
 /* ====================================================
-      2. 你的原“弹窗雨”代码（未改动）
+      2. 修改弹窗代码，添加"to 小芊❤"
    ==================================================== */
 const tips = [
     '你是最最最棒的小乖ദ്ദി˶ｰ̀֊ｰ́ )✧',
@@ -235,7 +248,7 @@ const tips = [
     '好好爱自己',
     '且听风吟，静等花开',
     '今天过得开心嘛',
-    '斯人若彩虹，遇上方知有~'
+    '斯人若彩虹，遇上方知有'
 ];
 
 const bgColors = [
@@ -266,6 +279,7 @@ function createPopup() {
     popup.style.fontSize = (Math.floor(Math.random() * 4) + 12) + 'px';
 
     popup.innerHTML = `
+        <div class="to-label">to 小芊❤</div>
         <div class="close-btn">×</div>
         <div class="message">${tips[Math.floor(Math.random() * tips.length)]}</div>
     `;
